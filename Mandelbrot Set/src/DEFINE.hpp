@@ -2,7 +2,7 @@
 
 #define APP_NAME "SFML_GAME"
 
-#define APP_HEIGHT 900
+#define APP_HEIGHT 800
 #define APP_WIDTH 800
 
 #define VOLUME_BAR_FILEPATH "res/gfx/Volume Bar.png"
