@@ -30,3 +30,10 @@
 *.exe
 *.out
 *.app
+
+# Vs created directories
+x64/
+Debug/
+.vs/
+Mandelbrot Set/x64/
+Mandelbrot Set/Debug/
