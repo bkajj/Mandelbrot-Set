@@ -213,8 +213,7 @@ namespace hgw
 				complexGrid[i][j] -= chuj;
 				complexGrid[i][j] /= double(scale);
 				chuj /= totalZoom;
-				complexGrid[i][j] -= chuj; // <---
-				//za ma³o sie translatuje
+				complexGrid[i][j] -= chuj;
 				/*std::complex<long double> relativePos = complexGrid[i][j] - complexGrid[399][399];
 				relativePos /= scale;
 				std::complex<long double> posPrim = relativePos + complexGrid[399][399];

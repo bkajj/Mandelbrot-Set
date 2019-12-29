@@ -19,7 +19,7 @@ namespace hgw
 		//inline std::complex<long double> indexToComplex(int x, int y, int zoom, sf::Vector2i mousePos);
 		inline std::complex<long double> indexToComplex(int x, int y);
 		inline sf::Color toRGB(int hue, int sat, int val);
-		inline void zoom(int scale, sf::Vector2i mousePos);
+		inline void zoom(double scale, sf::Vector2i mousePos);
 		inline void XD(int zoom, sf::Vector2i mousePos);
 
 		static const int MAX_ITER = 50;
