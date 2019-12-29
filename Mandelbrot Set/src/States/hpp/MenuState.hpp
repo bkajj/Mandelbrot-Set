@@ -15,17 +15,14 @@ namespace hgw
 		void Update(float dt);
 		void Draw(float dt);
 
-		inline double mandelbrot(std::complex<long double> c, int zoom);
-		//inline std::complex<long double> indexToComplex(int x, int y, int zoom, sf::Vector2i mousePos);
-		inline std::complex<long double> indexToComplex(int x, int y);
-		inline sf::Color toRGB(int hue, int sat, int val);
-		inline void zoom(double scale, sf::Vector2i mousePos);
-		inline void XD(int zoom, sf::Vector2i mousePos);
+		inline double mandelbrot(std::complex<long double> &c, const double &zoom);
+		inline std::complex<long double> indexToComplex(int &x, int &y);
+		inline sf::Color toRGB(int &hue, int& sat, int &val);
+		inline void zoom(const double &scale, sf::Vector2i &mousePos);
+		inline void CalculateMandelbrot(const double &scale);
 
-		static const int MAX_ITER = 50;
-		long double divZoom = 200;
-		int zoomVal = 1, totalZoom = 0;
-		sf::Vector2i mousePos, lastMousePos;
+		const int MAX_ITER = 500;
+		const double ZOOM_VALUE = 5;
 	private:
 		GameDataRef _data;
 

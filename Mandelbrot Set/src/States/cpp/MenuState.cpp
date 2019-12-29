@@ -15,8 +15,40 @@ namespace hgw
 			for (int j = 0; j < 800; j++)
 			{
 				grid[i][j].position = sf::Vector2f(i, j);
-				complexGrid[i][j] = indexToComplex(i, j);
-				int escapeVal = mandelbrot(complexGrid[i][j], 1);
+				complexGrid[i][j] = indexToComplex(i, j);		
+			}
+		}
+		double noZoom = 1;
+		CalculateMandelbrot(noZoom);
+	}
+
+	void MenuState::HandleInput()
+	{
+		sf::Event event;
+		
+		while (_data->window.pollEvent(event))
+		{
+			if (event.type == sf::Event::Closed)
+			{
+				_data->window.close();
+			}
+			if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+			{
+				CalculateMandelbrot(ZOOM_VALUE);
+			}
+		}
+	}
+
+	void MenuState::CalculateMandelbrot(const double &scale)
+	{
+		sf::Vector2i mousePos = sf::Mouse::getPosition(_data->window);
+		zoom(scale, mousePos);
+
+		for (int i = 0; i < 800; i++)
+		{
+			for (int j = 0; j < 800; j++)
+			{
+				int escapeVal = mandelbrot(complexGrid[i][j], scale);
 
 				if (escapeVal == MAX_ITER)
 				{
@@ -35,57 +67,8 @@ namespace hgw
 					{
 						value = 0;
 					}
-					
+
 					grid[i][j].color = toRGB(hue, saturation, value);
-				}
-			}
-		}
-	}
-
-	void MenuState::HandleInput()
-	{
-		sf::Event event;
-		
-		while (_data->window.pollEvent(event))
-		{
-			if (event.type == sf::Event::Closed)
-			{
-				_data->window.close();
-			}
-			if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-			{
-				zoomVal = 2;
-				totalZoom += 2;
-				lastMousePos = mousePos;
-				mousePos = sf::Mouse::getPosition(_data->window);
-				zoom(zoomVal, mousePos);
-				for (int i = 0; i < 800; i++)
-				{
-					for (int j = 0; j < 800; j++)
-					{
-						int escapeVal = mandelbrot(complexGrid[i][j], zoomVal);
-
-						if (escapeVal == MAX_ITER)
-						{
-							grid[i][j].color = sf::Color::Black;
-						}
-						else
-						{
-							int hue = 360 * escapeVal / MAX_ITER;
-							int saturation = 1;
-							int value;
-							if (escapeVal < MAX_ITER)
-							{
-								value = 1;
-							}
-							else
-							{
-								value = 0;
-							}
-
-							grid[i][j].color = toRGB(hue, saturation, value);
-						}
-					}
 				}
 			}
 		}
@@ -111,7 +94,7 @@ namespace hgw
 		_data->window.display();
 	}
 
-	inline double MenuState::mandelbrot(std::complex<long double> c, int zoom)
+	inline double MenuState::mandelbrot(std::complex<long double> &c, const double &zoom)
 	{
 		int n = 0;
 		std::complex<long double> z = 0;
@@ -132,114 +115,30 @@ namespace hgw
 		}
 	}
 
-	/*inline std::complex<long double> MenuState::indexToComplex(int index_x, int index_y, int zoom, sf::Vector2i mousePos)
+	inline std::complex<long double> MenuState::indexToComplex(int &index_x, int &index_y)
 	{
-		long double x, y, xMouse, yMouse;
-		//x = (grid[index_x][index_y].position.x - (400 - mousePos.x) * zoom - mousePos.x) / (200 * zoom);
-		//y = (grid[index_x][index_y].position.y - (400 - mousePos.y) * zoom - mousePos.y) / -(200 * zoom);
-
-		//x = (grid[index_x][index_y].position.x - (400 - mousePos.x) * zoom - mousePos.x) / (200 * zoom);
-		//y = (grid[index_x][index_y].position.y - (400 - mousePos.y) * zoom - mousePos.y) / -(200 * zoom);
-
-		x = (grid[index_x][index_y].position.x - 400) / 200;
-		y = (grid[index_x][index_y].position.y - 400) / -200;
-
-		xMouse = (mousePos.x - 400) / 200;
-		yMouse = (mousePos.y - 400) / -200;
-
-		sf::Vector2f relativePos = sf::Vector2f(x, y) - sf::Vector2f(xMouse, yMouse);
-		relativePos = sf::Vector2f(relativePos.x / zoom, relativePos.y / zoom);
-		sf::Vector2f posPrim = relativePos + sf::Vector2f(xMouse, yMouse);
-
-		//x = (grid[index_x][index_y].position.x - 400) / (200 * zoom);
-		//y = (grid[index_x][index_y].position.y - 400) / -(200 * zoom);
-
-		return std::complex<long double>{posPrim.x, posPrim.y};
-	}*/
-
-	inline std::complex<long double> MenuState::indexToComplex(int index_x, int index_y)
-	{
-		long double x, y;
-		x = (grid[index_x][index_y].position.x - 400) / 200;
-		y = (grid[index_x][index_y].position.y - 400) / -200;
+		long double x = (grid[index_x][index_y].position.x - 400) / 200;
+		long double y = (grid[index_x][index_y].position.y - 400) / -200;
 
 		return std::complex<long double>{x, y};
 	}
 
-	/*inline void MenuState::zoom(int scale, sf::Vector2i mousePos)
-	{
-		float xMouse = (mousePos.x - 400) / 200;
-		float yMouse = (mousePos.y - 400) / -200;
-		std::complex<long double> complMousePos{ xMouse, yMouse };
-
-		std::complex<long double> posDiff{ long double(400.0 - double(mousePos.x)) / (200.0 * double(scale)), long double(400.0 - double(mousePos.y)) / -(200.0 * double(scale))};
-		std::complex<long double> lastPosDiff;
-		if (totalZoom > 2)
-		{
-			lastPosDiff = { long double(400.0 - double(mousePos.x)) / (200.0 * double(totalZoom - 2)), long double(400.0 - double(mousePos.y)) / -(200.0 * double(totalZoom - 2)) };
-			//std::complex<long double> wtf{ long double(mousePos.x - lastMousePos.x) / (200 * totalZoom), long double(mousePos.y - lastMousePos.y) / -(200 * totalZoom) };
-		}
-		else
-		{
-			//std::complex<long double> wtf{ mousePos.x * 0.5 / (200 * totalZoom),  mousePos.y * 0.5 / (200 * totalZoom) };
-			lastPosDiff = posDiff / std::complex<long double>{2.0, 2.0};
-		}
-
-		
-		for (int i = 0; i < 800; i++)
-		{
-			for (int j = 0; j < 800; j++)
-			{
-				//std::complex<long double> diff = posDiff - lastPosDiff;
-				//diff *= scale;
-				complexGrid[i][j] /= double(scale);
-				complexGrid[i][j] -= posDiff + lastPosDiff;
-
-
-
-				//complexGrid[i][j] += std::complex<long double>{50.0f / 400.0, 0};
-			}
-		}
-	}*/
-
-	inline void MenuState::zoom(double scale, sf::Vector2i mousePos)
+	inline void MenuState::zoom(const double &scale, sf::Vector2i &mousePos)
 	{
 		for (int i = 0; i < 800; i++)
 		{
 			for (int j = 0; j < 800; j++)
 			{
-				std::complex<long double> chuj{ double(400 - mousePos.x) / (200.0), double(400 - mousePos.y) / (-200.0) };
-				chuj = { double(400 - mousePos.x) / (200.0), double(400 - mousePos.y) / (-200.0) };
-				complexGrid[i][j] -= chuj;
-				complexGrid[i][j] /= double(scale);
-				chuj /= totalZoom;
-				complexGrid[i][j] -= chuj; // <---
-				//za ma³o sie translatuje
-				/*std::complex<long double> relativePos = complexGrid[i][j] - complexGrid[399][399];
+				std::complex<long double> relativePos = complexGrid[i][j] - complexGrid[mousePos.x][mousePos.y];
 				relativePos /= scale;
-				std::complex<long double> posPrim = relativePos + complexGrid[399][399];
+				std::complex<long double> posPrim = relativePos + complexGrid[mousePos.x][mousePos.y];
 
-				complexGrid[i][j] = posPrim;*/
-
-				//complexGrid[i][j] += std::complex<long double>{50.0f / 400.0, 0};
+				complexGrid[i][j] = posPrim;
 			}
 		}
 	}
 
-	inline void MenuState::XD(int zoom, sf::Vector2i mousePos)
-	{
-		sf::Vector2f start = sf::Vector2f(mousePos.x / 2, mousePos.y / 2);
-		float stepVal = 1 / zoom;
-		for (int i = 0; i < 800; i++)
-		{
-			for (int j = 0; j < 800; j++)
-			{
-				grid[i][j].position += sf::Vector2f(i * stepVal, j * stepVal);
-			}
-		}
-	}
-
-	inline sf::Color MenuState::toRGB(int h, int s, int v)
+	inline sf::Color MenuState::toRGB(int &h, int &s, int &v)
 	{
 		double C = v * s;
 		double X = C * (1 - abs((h / 60) % 2 - 1));
@@ -289,6 +188,4 @@ namespace hgw
 		sf::Color rgb = sf::Color((Rp + m) * 255, (Gp + m) * 255, (Bp + m) * 255);
 		return rgb;
 	}
-
-	static const int MAX_ITER = 80;
 }
