@@ -1,6 +1,8 @@
 #include "src/States/hpp/MenuState.hpp"
 #include "src/GameEngine/hpp/Game.hpp"
 #include <iostream>
+#include <complex>
+
 namespace hgw
 {
 	MenuState::MenuState(GameDataRef _data)
@@ -14,12 +16,12 @@ namespace hgw
 		{
 			for (int j = 0; j < 800; j++)
 			{
-				grid[i][j].position = sf::Vector2f(i, j);
+				grid[i][j].position = sf::Vector2f(float(i), float(j));
 				complexGrid[i][j] = indexToComplex(i, j);		
 			}
 		}
 		double noZoom = 1;
-		CalculateMandelbrot(noZoom);
+		CalculateMandelbrot(noZoom, sf::Vector2i(400, 400));
 	}
 
 	void MenuState::HandleInput()
@@ -34,14 +36,17 @@ namespace hgw
 			}
 			if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 			{
-				CalculateMandelbrot(ZOOM_VALUE);
+				sf::Vector2i mousePos = sf::Mouse::getPosition(_data->window);
+				if (mousePos.x > 0 && mousePos.x < 800 && mousePos.y > 0 && mousePos.y < 800)
+				{
+					CalculateMandelbrot(ZOOM_VALUE, mousePos);
+				}
 			}
 		}
 	}
 
-	void MenuState::CalculateMandelbrot(const double &scale)
+	void MenuState::CalculateMandelbrot(double scale, sf::Vector2i mousePos)
 	{
-		sf::Vector2i mousePos = sf::Mouse::getPosition(_data->window);
 		zoom(scale, mousePos);
 
 		for (int i = 0; i < 800; i++)
@@ -94,7 +99,7 @@ namespace hgw
 		_data->window.display();
 	}
 
-	inline double MenuState::mandelbrot(std::complex<long double> &c, const double &zoom)
+	int MenuState::mandelbrot(std::complex<long double> c, double zoom)
 	{
 		int n = 0;
 		std::complex<long double> z = 0;
@@ -109,13 +114,10 @@ namespace hgw
 		{
 			return MAX_ITER;
 		}
-		else
-		{
-			return n + 1 - log(log2(abs(z)));
-		}
+		return n + 1 - log(log2(abs(z)));
 	}
 
-	inline std::complex<long double> MenuState::indexToComplex(int &index_x, int &index_y)
+	std::complex<long double> MenuState::indexToComplex(int index_x, int index_y)
 	{
 		long double x = (grid[index_x][index_y].position.x - 400) / 200;
 		long double y = (grid[index_x][index_y].position.y - 400) / -200;
@@ -123,14 +125,14 @@ namespace hgw
 		return std::complex<long double>{x, y};
 	}
 
-	inline void MenuState::zoom(const double &scale, sf::Vector2i &mousePos)
+	void MenuState::zoom( double scale, sf::Vector2i mousePos)
 	{
 		for (int i = 0; i < 800; i++)
 		{
 			for (int j = 0; j < 800; j++)
 			{
 				std::complex<long double> relativePos = complexGrid[i][j] - complexGrid[mousePos.x][mousePos.y];
-				relativePos /= scale;
+				relativePos /= std::complex<long double>(scale, 0);
 				std::complex<long double> posPrim = relativePos + complexGrid[mousePos.x][mousePos.y];
 
 				complexGrid[i][j] = posPrim;
@@ -138,12 +140,12 @@ namespace hgw
 		}
 	}
 
-	inline sf::Color MenuState::toRGB(int &h, int &s, int &v)
+	sf::Color MenuState::toRGB(int h, int s, int v)
 	{
 		double C = v * s;
 		double X = C * (1 - abs((h / 60) % 2 - 1));
 		double m = v - C;
-		int Rp, Gp, Bp;
+		double Rp, Gp, Bp;
 		if (h >= 300)
 		{
 			Rp = C;

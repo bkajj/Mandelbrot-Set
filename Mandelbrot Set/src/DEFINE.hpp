@@ -1,6 +1,6 @@
 #pragma once
 
-#define APP_NAME "SFML_GAME"
+#define APP_NAME "Mandelbrot Set"
 
 #define APP_HEIGHT 800
 #define APP_WIDTH 800
