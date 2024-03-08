@@ -32,3 +32,7 @@ Project Properties -> Configuration Properties -> Linker -> General -> Additiona
 Add your C://../boost_1_xx_x/stage/lib directory here
 
 Now, boost should be working properly, but if it isn't check [this](https://levelup.gitconnected.com/the-definite-guide-on-compiling-and-linking-boost-c-libraries-for-visual-studio-projects-c79464d7282d) out
+
+## Game engine
+
+Game engine template was created by Sonar Systems, updated and modified by me. I know it's a bit overkill for small project like this but whatever.
